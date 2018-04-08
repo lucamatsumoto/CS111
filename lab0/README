@@ -1,0 +1,39 @@
+NAME: Luca (Ruka) Matsumoto
+EMAIL: lucamatsumoto@gmail.com
+ID: 204726167
+
+lab0.c:
+The C source file used to create the executable. 
+This program copies the standard input to its standard output by reading from file descriptor 0 (stdin) and writing it to file descriptor 1 (stdout).
+This program includes two required options, --input, --output, and two optional options --segfault and --catch.
+These options were created using the getopt_long API and each option is handled by the program.
+When the program succeeds, it does what it intends to do, as the program reads, byte by byte, from the standard input and copies over the results to the standard output.
+When the --segfault option is specified, it creates a segmentation fault through dereferencing a null pointer. This is not the only way to create segmentation faults. As stated on the Piazza forums, another way to do so is to dereference a nonzero pointer through a command such as *(int*)0 = 0. Another way to cause a segmentation fault would be to use the raise() command, raise(SIGSEGV). 
+When the --segfault option along with the --catch option is specified (the --catch option can only be used when the --segfault option is used), it uses the signal(2) API to catch the SIGSEGV signal and output the error message. 
+When a bad argument, an option that is not --input, --output, --segfault, or --catch, is specified, we print a usage message to let the user know.
+
+Makefile
+The default target is used to compile the program using GCC and maximized compile-time error checking with -Wall and -Wextra options
+The check target is used to run the collective smoke-test cases. I created a file called correctOutputs.txt to store all the correct outputs of the smoke-test cases. Then, I checked whether that file existed or not to see if all tests were passed.
+The clean target removes all unnecessary files that were created in the program. (e.g. extra .txt files, .o files, tar files)
+The dist target creates the tarball of the necessary files for submission.
+Smoke-test cases
+successTest: This test checks whether the correct exit code was returned when the program finished. Should return 0 when finished.
+catchSegTest: This test is for the --segfault and --catch options. This checks whether the code returned the correct exit code when a segmentation fault is caught with the --catch option. Should return exit code 4.
+invalidArgTest: This test is for checking if the correct exit code is returned when an unspecified option is called in the command. The correct exit code should be 1.
+checkResult: This test is for checking whether the input and output files have the same content, by using the cmp command. If the cmp command returns the exit code 0, the contents of the files are identical.
+createFileTest: This test is for checking whether a file is able to be properly created and the output redirection is handled. If the file cannot be opened, then the file should return exit code 3.
+openTest: This test is for checking whether a file could be opened or not and the input file redirection was handled correctly. I checked whether the exit code for the program was 3 when a file that does not exist was attempted to be opened.
+
+backtrace.png: a screenshot of a gdb session that shows a segmentation fault using the r --segfault command, and its associated stack trace using the bt command.
+
+breakpoint.png: a screenshot of a gdb session that shows the null pointer is indeed NULL. We set a breakpoint at line 90 using the b 90 command. Then do the variable inspection with the p setPointer and p *setPointer commands to show that the variable is null. We dereference the null pointer in order to generate a segmentation fault.
+
+README: Document that contains information about the files in the submission tarball.
+
+Sources Used for project help:
+https://web.cs.ucla.edu/classes/spring18/cs111/projects/fd_juggling.html for input/output redirection
+https://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Option-Example.html for help with getopt_long
+https://www.gnu.org/software/libc/manual/html_node/Opening-and-Closing-Files.html for opening/closing files
+https://randu.org/tutorials/c/make.php for help with Makefiles
+
