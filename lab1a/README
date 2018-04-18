@@ -1,0 +1,20 @@
+NAME: Luca Matsumoto
+EMAIL: lucamatsumoto@gmail.com
+ID: 204726167
+
+lab1a.c: This file is the C source file. The program has a character-at-a-time, full-duplex terminal I/O that passes inputs between two processes, the parent (terminal) and the child (shell). The --shell option allows you to pass inputs between the terminal and a shell and the --debug option allows for debugging statements that help for debugging the program.
+
+Makefile: Compiles and builds the program and the tarball for submission. Clean cleans up all the unnecessary files that are not needed and make dist creates the tarball.
+
+README: Information about the files that are submitted.
+
+Resources Used:
+http://www.csl.mtu.edu/cs4411.ck/www/NOTES/process/fork/exec.html (help with exec)
+https://support.sas.com/documentation/onlinedoc/sasc/doc/lr2/tgetatr.htm (help with termios)
+http://man7.org/linux/man-pages/man2/pipe.2.html (help with pipes)
+http://pubs.opengroup.org/onlinepubs/009695399/functions/poll.html (help with poll(2))
+http://man7.org/linux/man-pages/man3/exec.3.html (help with exec)
+Used a similar format to my lab0 submission for Makefile and getopt_long
+https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.bpxbd00/isatty.htm (to see if descriptor is a terminal)
+
+
