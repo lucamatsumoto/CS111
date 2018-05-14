@@ -1,0 +1,20 @@
+NAME: Luca Matsumoto
+ID: 204726167
+EMAIL: lucamatsumoto@gmail.com
+
+lab1b-client.c: the C source file for the client side of the program. Includes the --port option to specify the port number to run the program on, the --log option to keep track of the bytes sent and received in a file, and the --compress option to compress the bytes sent and received over a socket.
+
+lab1b-server.c: the C source file for the server side of the program. Includes the --port option to specify the port number (which has to match the port number specified on the client side) and the --compress option to compress the bytes sent and received, enabling data compression.
+
+README: File containing the information about the lab
+
+Makefile: Compiles and builds the program and tarball for submission. Clean cleasn the uncessary files that you don't need, dist creates the tarball, and server/client are used to create the server and client side executables.
+
+Resources Used
+*All resources mentioned in lab1a were used again
+Reference zlib tutorial for help with data compression: https://www.zlib.net/zpipe.c
+Server connection help with http://www.cs.rpi.edu/~moorthy/Courses/os98/Pgms/server.c
+Socket help with https://www.geeksforgeeks.org/socket-programming-cc/
+and http://www.cs.rpi.edu/~moorthy/Courses/os98/Pgms/client.c
+and https://www.tutorialspoint.com/unix_sockets/client_server_model.htm
+
