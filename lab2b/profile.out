@@ -1,0 +1,329 @@
+Total: 416 samples
+     375  90.1%  90.1%      415  99.8% sorted_list_action
+      32   7.7%  97.8%       32   7.7% __strcmp_sse42
+       6   1.4%  99.3%       25   6.0% SortedList_insert
+       2   0.5%  99.8%       15   3.6% SortedList_lookup
+       1   0.2% 100.0%        1   0.2% _int_free
+       0   0.0% 100.0%      415  99.8% __clone
+       0   0.0% 100.0%        1   0.2% __libc_start_main
+       0   0.0% 100.0%        1   0.2% _start
+       0   0.0% 100.0%        1   0.2% main
+       0   0.0% 100.0%      415  99.8% start_thread
+ROUTINE ====================== sorted_list_action in /u/cs/ugrad/ruka/cs111/lab2b/lab2_list.c
+   375    415 Total samples (flat / cumulative)
+     .      .  160:     setupLocks();
+     .      .  161:     initializeElements(numElements);
+     .      .  162:     splitElements();
+     .      .  163: }//method to initialize lists, keys, locks
+     .      .  164: 
+---
+     .      .  165: void* sorted_list_action(void* thread_id){
+     .      .  166:     struct timespec start_time, end_time;
+     .      .  167:     int i,j;
+     .      .  168:     int num = *((int*)thread_id);
+     .      .  169:     for(i = num; i < numElements; i += numThreads){
+     .      .  170:         if(mutexFlag){
+     .      .  171:             if(clock_gettime(CLOCK_MONOTONIC, &start_time) < 0){
+     .      .  172:                 print_errors("clock_gettime");
+     .      .  173:             }
+     .      .  174:             pthread_mutex_lock(&mutexes[nums[i]]);
+     .      .  175:             if(clock_gettime(CLOCK_MONOTONIC, &end_time) < 0){
+     .      .  176:                 print_errors("clock_gettime");
+     .      .  177:             }
+     .      .  178:             runTime +=  (end_time.tv_sec - start_time.tv_sec) * ONE_BILLION;
+     .      .  179:             runTime += end_time.tv_nsec;
+     .      .  180:             runTime -= start_time.tv_nsec; //get lock run time
+     .      .  181:             SortedList_insert(&lists[nums[i]], &elements[i]);
+     .      .  182:             pthread_mutex_unlock(&mutexes[nums[i]]);
+     .      .  183:         }
+     .      .  184:         else if(spinLockFlag){
+     .      .  185:             if(clock_gettime(CLOCK_MONOTONIC, &start_time) < 0){
+     .      .  186:                 print_errors("clock_gettime");
+     .      .  187:             }
+   250    250  188:             while(__sync_lock_test_and_set(&spinLocks[nums[i]], 1));
+     .      .  189:             if(clock_gettime(CLOCK_MONOTONIC, &end_time) < 0){
+     .      .  190:                 print_errors("clock_gettime");
+     .      .  191:             }
+     .      .  192:             runTime += (end_time.tv_sec - start_time.tv_sec) * ONE_BILLION;
+     .      .  193:             runTime += end_time.tv_nsec;
+     .      .  194:             runTime -= start_time.tv_nsec; //get run time
+     .     25  195:             SortedList_insert(&lists[nums[i]], &elements[i]);
+     .      .  196:             __sync_lock_release(&spinLocks[nums[i]]);
+     .      .  197:         }
+     .      .  198:         else if(!spinLockFlag && !mutexFlag){
+     .      .  199:             SortedList_insert(&lists[nums[i]], &elements[i]);
+     .      .  200:         }
+     .      .  201:     }
+     .      .  202:     int length = 0;
+     .      .  203:     if(mutexFlag){
+     .      .  204:         for(j = 0; j < numList; j++){
+     .      .  205:             if(clock_gettime(CLOCK_MONOTONIC, &start_time) < 0){
+     .      .  206:                 print_errors("clock_gettime");
+     .      .  207:             }
+     .      .  208:             pthread_mutex_lock(&mutexes[j]);
+     .      .  209:             if(clock_gettime(CLOCK_MONOTONIC, &end_time) < 0){
+     .      .  210:                 print_errors("clock_gettime");
+     .      .  211:             }
+     .      .  212:             runTime +=  (end_time.tv_sec - start_time.tv_sec) * ONE_BILLION;
+     .      .  213:             runTime += end_time.tv_nsec;
+     .      .  214:             runTime -= start_time.tv_nsec; //get run time
+     .      .  215:             int subLength = SortedList_length(&lists[j]);
+     .      .  216:             if (subLength < 0){
+     .      .  217:                 print_errors("length");
+     .      .  218:             }
+     .      .  219:             length += subLength;
+     .      .  220:             pthread_mutex_unlock(&mutexes[j]);
+     .      .  221:         }
+     .      .  222:     }
+     .      .  223:     else if(spinLockFlag){
+     .      .  224:         for(j = 0; j < numList; j++){
+     .      .  225:             if(clock_gettime(CLOCK_MONOTONIC, &start_time) < 0){
+     .      .  226:                 print_errors("clock_gettime");
+     .      .  227:             }
+     .      .  228:             while(__sync_lock_test_and_set(&spinLocks[j], 1));
+     .      .  229:             if(clock_gettime(CLOCK_MONOTONIC, &end_time) < 0){
+     .      .  230:                 print_errors("clock_gettime");
+     .      .  231:             }
+     .      .  232:             runTime +=  (end_time.tv_sec - start_time.tv_sec) * ONE_BILLION;
+     .      .  233:             runTime += end_time.tv_nsec;
+     .      .  234:             runTime -= start_time.tv_nsec; //get run time
+     .      .  235:             int subLength = SortedList_length(&lists[j]);
+     .      .  236:             if (subLength < 0){
+     .      .  237:                 print_errors("length");
+     .      .  238:             }
+     .      .  239:             length += subLength;
+     .      .  240:             __sync_lock_release(&spinLocks[j]);
+     .      .  241:         }
+     .      .  242:     }
+     .      .  243:     else if(!spinLockFlag && !mutexFlag){
+     .      .  244:         for(j = 0; j < numList; j++){
+     .      .  245:             int subLength = SortedList_length(&lists[j]);
+     .      .  246:             if (subLength < 0){
+     .      .  247:                 print_errors("length");
+     .      .  248:             }
+     .      .  249:             length += subLength;
+     .      .  250:         }
+     .      .  251:     }
+     .      .  252:     SortedListElement_t* insertedElement;
+     .      .  253:     num = *((int*)thread_id);
+     .      .  254:     for(i = num; i < numElements; i += numThreads){
+     .      .  255:         if(mutexFlag){
+     .      .  256:             if(clock_gettime(CLOCK_MONOTONIC, &start_time) < 0){
+     .      .  257:                 print_errors("clock_gettime");
+     .      .  258:             }
+     .      .  259:             pthread_mutex_lock(&mutexes[nums[i]]);
+     .      .  260:             if(clock_gettime(CLOCK_MONOTONIC, &end_time) < 0){
+     .      .  261:                 print_errors("clock_gettime");
+     .      .  262:             }
+     .      .  263:             runTime +=  (end_time.tv_sec - start_time.tv_sec) * ONE_BILLION;
+     .      .  264:             runTime += end_time.tv_nsec;
+     .      .  265:             runTime -= start_time.tv_nsec; //get run time
+     .      .  266:             insertedElement = SortedList_lookup(&lists[nums[i]], elements[i].key);
+     .      .  267:             if(insertedElement == NULL){
+     .      .  268:                 print_errors("lookup");
+     .      .  269:             }
+     .      .  270:             int res = SortedList_delete(insertedElement);
+     .      .  271:             if(res == 1){
+     .      .  272:                 print_errors("delete");
+     .      .  273:             }
+     .      .  274:             pthread_mutex_unlock(&mutexes[nums[i]]);
+     .      .  275:         }
+     .      .  276:         else if(spinLockFlag){
+     .      .  277:             if(clock_gettime(CLOCK_MONOTONIC, &start_time) < 0){
+     .      .  278:                 print_errors("clock_gettime");
+     .      .  279:             }
+   125    125  280:             while(__sync_lock_test_and_set(&spinLocks[nums[i]], 1));
+     .      .  281:             if(clock_gettime(CLOCK_MONOTONIC, &end_time) < 0){
+     .      .  282:                 print_errors("clock_gettime");
+     .      .  283:             }
+     .      .  284:             runTime +=  (end_time.tv_sec - start_time.tv_sec) * ONE_BILLION;
+     .      .  285:             runTime += end_time.tv_nsec;
+     .      .  286:             runTime -= start_time.tv_nsec; //get run time
+     .     15  287:             insertedElement = SortedList_lookup(&lists[nums[i]], elements[i].key);
+     .      .  288:             if(insertedElement == NULL){
+     .      .  289:                 print_errors("lookup");
+     .      .  290:             }
+     .      .  291:             int res = SortedList_delete(insertedElement);
+     .      .  292:             if(res == 1){
+     .      .  293:                 print_errors("delete");
+     .      .  294:             }
+     .      .  295:             __sync_lock_release(&spinLocks[nums[i]]);
+     .      .  296:         }
+     .      .  297:         else if(!mutexFlag && !spinLockFlag){
+     .      .  298:             insertedElement = SortedList_lookup(&lists[nums[i]], elements[i].key);
+     .      .  299:             if(insertedElement == NULL){
+     .      .  300:                 print_errors("lookup");
+     .      .  301:             }
+     .      .  302:             int res = SortedList_delete(insertedElement);
+     .      .  303:             if(res == 1){
+     .      .  304:                 print_errors("delete");
+     .      .  305:             }
+     .      .  306:         }
+     .      .  307:     }
+     .      .  308:     return NULL;
+     .      .  309: }
+---
+     .      .  310: 
+     .      .  311: int main(int argc, char** argv){
+     .      .  312:     int opt = 0;
+     .      .  313:     char input;
+     .      .  314:     static struct option options [] = {
+ROUTINE ====================== sorted_list_action in /u/cs/ugrad/ruka/cs111/lab2b/lab2_list.c
+   375    415 Total samples (flat / cumulative)
+     .      .  160:     setupLocks();
+     .      .  161:     initializeElements(numElements);
+     .      .  162:     splitElements();
+     .      .  163: }//method to initialize lists, keys, locks
+     .      .  164: 
+---
+     .      .  165: void* sorted_list_action(void* thread_id){
+     .      .  166:     struct timespec start_time, end_time;
+     .      .  167:     int i,j;
+     .      .  168:     int num = *((int*)thread_id);
+     .      .  169:     for(i = num; i < numElements; i += numThreads){
+     .      .  170:         if(mutexFlag){
+     .      .  171:             if(clock_gettime(CLOCK_MONOTONIC, &start_time) < 0){
+     .      .  172:                 print_errors("clock_gettime");
+     .      .  173:             }
+     .      .  174:             pthread_mutex_lock(&mutexes[nums[i]]);
+     .      .  175:             if(clock_gettime(CLOCK_MONOTONIC, &end_time) < 0){
+     .      .  176:                 print_errors("clock_gettime");
+     .      .  177:             }
+     .      .  178:             runTime +=  (end_time.tv_sec - start_time.tv_sec) * ONE_BILLION;
+     .      .  179:             runTime += end_time.tv_nsec;
+     .      .  180:             runTime -= start_time.tv_nsec; //get lock run time
+     .      .  181:             SortedList_insert(&lists[nums[i]], &elements[i]);
+     .      .  182:             pthread_mutex_unlock(&mutexes[nums[i]]);
+     .      .  183:         }
+     .      .  184:         else if(spinLockFlag){
+     .      .  185:             if(clock_gettime(CLOCK_MONOTONIC, &start_time) < 0){
+     .      .  186:                 print_errors("clock_gettime");
+     .      .  187:             }
+   250    250  188:             while(__sync_lock_test_and_set(&spinLocks[nums[i]], 1));
+     .      .  189:             if(clock_gettime(CLOCK_MONOTONIC, &end_time) < 0){
+     .      .  190:                 print_errors("clock_gettime");
+     .      .  191:             }
+     .      .  192:             runTime += (end_time.tv_sec - start_time.tv_sec) * ONE_BILLION;
+     .      .  193:             runTime += end_time.tv_nsec;
+     .      .  194:             runTime -= start_time.tv_nsec; //get run time
+     .     25  195:             SortedList_insert(&lists[nums[i]], &elements[i]);
+     .      .  196:             __sync_lock_release(&spinLocks[nums[i]]);
+     .      .  197:         }
+     .      .  198:         else if(!spinLockFlag && !mutexFlag){
+     .      .  199:             SortedList_insert(&lists[nums[i]], &elements[i]);
+     .      .  200:         }
+     .      .  201:     }
+     .      .  202:     int length = 0;
+     .      .  203:     if(mutexFlag){
+     .      .  204:         for(j = 0; j < numList; j++){
+     .      .  205:             if(clock_gettime(CLOCK_MONOTONIC, &start_time) < 0){
+     .      .  206:                 print_errors("clock_gettime");
+     .      .  207:             }
+     .      .  208:             pthread_mutex_lock(&mutexes[j]);
+     .      .  209:             if(clock_gettime(CLOCK_MONOTONIC, &end_time) < 0){
+     .      .  210:                 print_errors("clock_gettime");
+     .      .  211:             }
+     .      .  212:             runTime +=  (end_time.tv_sec - start_time.tv_sec) * ONE_BILLION;
+     .      .  213:             runTime += end_time.tv_nsec;
+     .      .  214:             runTime -= start_time.tv_nsec; //get run time
+     .      .  215:             int subLength = SortedList_length(&lists[j]);
+     .      .  216:             if (subLength < 0){
+     .      .  217:                 print_errors("length");
+     .      .  218:             }
+     .      .  219:             length += subLength;
+     .      .  220:             pthread_mutex_unlock(&mutexes[j]);
+     .      .  221:         }
+     .      .  222:     }
+     .      .  223:     else if(spinLockFlag){
+     .      .  224:         for(j = 0; j < numList; j++){
+     .      .  225:             if(clock_gettime(CLOCK_MONOTONIC, &start_time) < 0){
+     .      .  226:                 print_errors("clock_gettime");
+     .      .  227:             }
+     .      .  228:             while(__sync_lock_test_and_set(&spinLocks[j], 1));
+     .      .  229:             if(clock_gettime(CLOCK_MONOTONIC, &end_time) < 0){
+     .      .  230:                 print_errors("clock_gettime");
+     .      .  231:             }
+     .      .  232:             runTime +=  (end_time.tv_sec - start_time.tv_sec) * ONE_BILLION;
+     .      .  233:             runTime += end_time.tv_nsec;
+     .      .  234:             runTime -= start_time.tv_nsec; //get run time
+     .      .  235:             int subLength = SortedList_length(&lists[j]);
+     .      .  236:             if (subLength < 0){
+     .      .  237:                 print_errors("length");
+     .      .  238:             }
+     .      .  239:             length += subLength;
+     .      .  240:             __sync_lock_release(&spinLocks[j]);
+     .      .  241:         }
+     .      .  242:     }
+     .      .  243:     else if(!spinLockFlag && !mutexFlag){
+     .      .  244:         for(j = 0; j < numList; j++){
+     .      .  245:             int subLength = SortedList_length(&lists[j]);
+     .      .  246:             if (subLength < 0){
+     .      .  247:                 print_errors("length");
+     .      .  248:             }
+     .      .  249:             length += subLength;
+     .      .  250:         }
+     .      .  251:     }
+     .      .  252:     SortedListElement_t* insertedElement;
+     .      .  253:     num = *((int*)thread_id);
+     .      .  254:     for(i = num; i < numElements; i += numThreads){
+     .      .  255:         if(mutexFlag){
+     .      .  256:             if(clock_gettime(CLOCK_MONOTONIC, &start_time) < 0){
+     .      .  257:                 print_errors("clock_gettime");
+     .      .  258:             }
+     .      .  259:             pthread_mutex_lock(&mutexes[nums[i]]);
+     .      .  260:             if(clock_gettime(CLOCK_MONOTONIC, &end_time) < 0){
+     .      .  261:                 print_errors("clock_gettime");
+     .      .  262:             }
+     .      .  263:             runTime +=  (end_time.tv_sec - start_time.tv_sec) * ONE_BILLION;
+     .      .  264:             runTime += end_time.tv_nsec;
+     .      .  265:             runTime -= start_time.tv_nsec; //get run time
+     .      .  266:             insertedElement = SortedList_lookup(&lists[nums[i]], elements[i].key);
+     .      .  267:             if(insertedElement == NULL){
+     .      .  268:                 print_errors("lookup");
+     .      .  269:             }
+     .      .  270:             int res = SortedList_delete(insertedElement);
+     .      .  271:             if(res == 1){
+     .      .  272:                 print_errors("delete");
+     .      .  273:             }
+     .      .  274:             pthread_mutex_unlock(&mutexes[nums[i]]);
+     .      .  275:         }
+     .      .  276:         else if(spinLockFlag){
+     .      .  277:             if(clock_gettime(CLOCK_MONOTONIC, &start_time) < 0){
+     .      .  278:                 print_errors("clock_gettime");
+     .      .  279:             }
+   125    125  280:             while(__sync_lock_test_and_set(&spinLocks[nums[i]], 1));
+     .      .  281:             if(clock_gettime(CLOCK_MONOTONIC, &end_time) < 0){
+     .      .  282:                 print_errors("clock_gettime");
+     .      .  283:             }
+     .      .  284:             runTime +=  (end_time.tv_sec - start_time.tv_sec) * ONE_BILLION;
+     .      .  285:             runTime += end_time.tv_nsec;
+     .      .  286:             runTime -= start_time.tv_nsec; //get run time
+     .     15  287:             insertedElement = SortedList_lookup(&lists[nums[i]], elements[i].key);
+     .      .  288:             if(insertedElement == NULL){
+     .      .  289:                 print_errors("lookup");
+     .      .  290:             }
+     .      .  291:             int res = SortedList_delete(insertedElement);
+     .      .  292:             if(res == 1){
+     .      .  293:                 print_errors("delete");
+     .      .  294:             }
+     .      .  295:             __sync_lock_release(&spinLocks[nums[i]]);
+     .      .  296:         }
+     .      .  297:         else if(!mutexFlag && !spinLockFlag){
+     .      .  298:             insertedElement = SortedList_lookup(&lists[nums[i]], elements[i].key);
+     .      .  299:             if(insertedElement == NULL){
+     .      .  300:                 print_errors("lookup");
+     .      .  301:             }
+     .      .  302:             int res = SortedList_delete(insertedElement);
+     .      .  303:             if(res == 1){
+     .      .  304:                 print_errors("delete");
+     .      .  305:             }
+     .      .  306:         }
+     .      .  307:     }
+     .      .  308:     return NULL;
+     .      .  309: }
+---
+     .      .  310: 
+     .      .  311: int main(int argc, char** argv){
+     .      .  312:     int opt = 0;
+     .      .  313:     char input;
+     .      .  314:     static struct option options [] = {
