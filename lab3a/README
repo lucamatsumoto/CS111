@@ -11,4 +11,4 @@ ext2_fs.h: Header file of a simplified version of a Linux ext2 file system.
 README: includes information on files for submission
 
 Resources Used:
-//include here later
+Included in the code
