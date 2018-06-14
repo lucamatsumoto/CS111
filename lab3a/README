@@ -1,0 +1,14 @@
+NAME: Luca Matsumoto,John Goodlad
+EMAIL: lucamatsumoto@gmail.com,johngoodlad@ucla.edu
+ID: 204726167,404675483
+
+lab3a.c: C source file that builds a program to display information about the ext2 file system. 
+
+Makefile: Makefile that includes targets for building and compiling our lab3a.c program, generating the deliverable tarball(dist), and deleting the unnecessary files (clean).
+
+ext2_fs.h: Header file of a simplified version of a Linux ext2 file system.
+
+README: includes information on files for submission
+
+Resources Used:
+//include here later

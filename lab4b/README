@@ -1,0 +1,11 @@
+NAME: Luca Matsumoto
+ID: 204726167
+EMAIL: lucamatsumoto@gmail.com
+
+lab4b.c: The C source file to build the program that reads and outputs temperatures, with options for scale, logging, and period.
+
+README: Descriptions of the files for submission
+
+smokeCheck.sh: test script to run the smoke test cases for make check
+
+Makefile: Makefile that supports default target to build program, dist to generate tarball for submission, clean to remove unnecessary files, and check to run the smoke test cases.

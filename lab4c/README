@@ -1,0 +1,14 @@
+NAME: Luca Matsumoto
+EMAIL: lucamatsumoto@gmail.com	
+ID: 204726167
+SLIPDAYS: 1
+
+lab4c_tcp.c: C source file for the embedded application that runs on a Beaglebone that opens a TCP connection and logs commands over the connection.
+
+lab4c_tls.c: C source file for an embedded application that runs on a Beaglebone that opens an SSL connection and logs commands over that connection.
+
+README: Description of files that are included in the tarball for submission.
+
+Makefile: Makefile that contains targets for clean, dist, and default that remove unnecessary files, generates the tarball, and builds the executables respectively.
+
+

@@ -1,0 +1,11 @@
+NAME: Luca Matsumoto,John Goodlad
+EMAIL: lucamatsumoto@gmail.com,JohnGoodlad@ucla.edu
+ID: 204726167,404675483
+
+lab3b.py: python3 script that reads in a file system image summary in a CSV file and outputs data about inconsistencies
+
+Makefile: Makefile that includes targets clean to remove unnecessary files, dist to generate the tarball for submission, and default to build the executable.
+
+README: Information about the files submitted
+
+Resources used: Included as comments in python file
