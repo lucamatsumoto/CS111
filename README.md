@@ -4,7 +4,7 @@
 
 **Lab 0: Warmup**
 
-Basic C programming warmup with using the getopt_long(3) API to make a simple CLI application that copies the standard input to standard output with support for --segfault and --catch to raise a segmentation fault.
+Basic C programming warmup using the getopt_long(3) API to make a simple CLI application that copies the standard input to standard output with support for --segfault and --catch to raise a segmentation fault.
 
 **Lab 1A: Terminal I/O and Inter-Process Communication**
 
